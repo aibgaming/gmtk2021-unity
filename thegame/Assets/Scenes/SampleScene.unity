@@ -226,13 +226,6 @@ MonoBehaviour:
   _movementAcceleration: 50
   _maxMoveSpeed: 10
   _groundLinearDrag: 7
-  _jumpForce: 12
-  _airLinearDrag: 2.5
-  _fallMultiplier: 8
-  _lowJumpFallMultiplier: 5
-  _extraJumps: 1
-  _groundRaycastLength: 0.6
-  _groundRaycastOffset: {x: 0, y: 0, z: 0}
 --- !u!61 &259152445
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -279,7 +272,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1 &478089925
 GameObject:
   m_ObjectHideFlags: 3

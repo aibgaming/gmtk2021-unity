@@ -16,22 +16,23 @@ public class mainMovement : MonoBehaviour
     [SerializeField] private float _maxMoveSpeed = 10f;
     [SerializeField] private float _groundLinearDrag = 7f;
     private float _horizontalDirection;
+    private float _verticalDirection;
     private bool _changingDirection => (_rb.velocity.x > 0f && _horizontalDirection < 0f) || (_rb.velocity.x < 0f && _horizontalDirection > 0f);
     private bool _facingRight = true;
 
-    [Header("Jump Variables")]
-    [SerializeField] private float _jumpForce = 12f;
-    [SerializeField] private float _airLinearDrag = 2.5f;
-    [SerializeField] private float _fallMultiplier = 8f;
-    [SerializeField] private float _lowJumpFallMultiplier = 5f;
-    [SerializeField] private int _extraJumps = 1;
-    private int _extraJumpValue;
-    private bool _canJump => Input.GetButtonDown("Jump") && (_onGround || _extraJumpValue > 0);
+    //[Header("Jump Variables")]
+    //[SerializeField] private float _jumpForce = 12f;
+    //[SerializeField] private float _airLinearDrag = 2.5f;
+    //[SerializeField] private float _fallMultiplier = 8f;
+    //[SerializeField] private float _lowJumpFallMultiplier = 5f;
+    //[SerializeField] private int _extraJumps = 1;
+    //private int _extraJumpValue;
+    //private bool _canJump => Input.GetButtonDown("Jump") && (_onGround || _extraJumpValue > 0);
 
-    [Header("Ground Collision Variables")]
-    [SerializeField] private float _groundRaycastLength;
-    [SerializeField] private Vector3 _groundRaycastOffset;
-    private bool _onGround;
+    //[Header("Ground Collision Variables")]
+    //[SerializeField] private float _groundRaycastLength;
+    //[SerializeField] private Vector3 _groundRaycastOffset;
+    //private bool _onGround;
 
 
     // Start is called before the first frame update
@@ -45,7 +46,8 @@ public class mainMovement : MonoBehaviour
     private void Update()
     {
         _horizontalDirection = GetInput().x;
-        if (_canJump) Jump();
+        _verticalDirection = GetInput().y;
+        //if (_canJump) Jump();
 
         //Animation
         //_anim.SetBool("isGrounded", _onGround);
@@ -68,20 +70,9 @@ public class mainMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CheckCollision();
+        //CheckCollision();
         MoveCharacter();
-        if (_onGround)
-        {
-            _extraJumpValue = _extraJumps;
-            ApplyGroundLinearDrag();
-            //_anim.SetBool("isJumping", false);
-            //_anim.SetBool("isFalling", false);
-        }
-        else
-        {
-            ApplyAirLinearDrag();
-            FallMultiplier();
-        }
+        ApplyGroundLinearDrag();
     }
 
     private Vector2 GetInput()
@@ -91,26 +82,29 @@ public class mainMovement : MonoBehaviour
 
     private void MoveCharacter()
     {
-        _rb.AddForce(new Vector2(_horizontalDirection, 0f) * _movementAcceleration);
+        _rb.AddForce(new Vector2(_horizontalDirection, _verticalDirection) * _movementAcceleration);
 
         if (Mathf.Abs(_rb.velocity.x) > _maxMoveSpeed)
             _rb.velocity = new Vector2(Mathf.Sign(_rb.velocity.x) * _maxMoveSpeed, _rb.velocity.y);
+        else if (Mathf.Abs(_rb.velocity.y) > _maxMoveSpeed)
+            _rb.velocity = new Vector2(_rb.velocity.x, Mathf.Sign(_rb.velocity.y) * _maxMoveSpeed);
+            
     }
 
-    private void Jump()
-    {
-        if (!_onGround)
-            _extraJumpValue--;
+    //private void Jump()
+    //{
+    //    if (!_onGround)
+    //        _extraJumpValue--;
 
-        _rb.velocity = new Vector2(_rb.velocity.x, 0f);
-        _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+    //    _rb.velocity = new Vector2(_rb.velocity.x, 0f);
+    //    _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
 
-        //Animation
-        //_anim.SetBool("isJumping", true);
-        //_anim.SetBool("isFalling", false);
-    }
+    //    Animation
+    //    _anim.SetBool("isJumping", true);
+    //    _anim.SetBool("isFalling", false);
+    //}
 
-    private void FallMultiplier()
+    /*private void FallMultiplier()
     {
         if (_rb.velocity.y < 0)
         {
@@ -124,11 +118,11 @@ public class mainMovement : MonoBehaviour
         {
             _rb.gravityScale = 1f;
         }
-    }
+    }*/
 
     private void ApplyGroundLinearDrag()
     {
-        if (Mathf.Abs(_horizontalDirection) < 0.4f || _changingDirection)
+        if (Mathf.Abs(_verticalDirection) < 0.4f || Mathf.Abs(_horizontalDirection) < 0.4f || _changingDirection)
         {
             _rb.drag = _groundLinearDrag;
         }
@@ -138,25 +132,25 @@ public class mainMovement : MonoBehaviour
         }
     }
 
-    private void ApplyAirLinearDrag()
-    {
-        _rb.drag = _airLinearDrag;
-    }
+    //private void ApplyAirLinearDrag()
+    //{
+    //    _rb.drag = _airLinearDrag;
+    //}
 
-    void Flip()
-    {
-        transform.Rotate(0f, 180f, 0f);
-        _facingRight = !_facingRight;
-    }
-    private void CheckCollision()
-    {
-        _onGround = Physics2D.Raycast(transform.position + _groundRaycastOffset, Vector2.down, _groundRaycastLength, _groundLayer) || Physics2D.Raycast(transform.position - _groundRaycastOffset, Vector2.down, _groundRaycastLength, _groundLayer); ;
-    }
+    //void Flip()
+    //{
+    //    transform.Rotate(0f, 180f, 0f);
+    //    _facingRight = !_facingRight;
+    //}
+    //private void CheckCollision()
+    //{
+    //    _onGround = Physics2D.Raycast(transform.position + _groundRaycastOffset, Vector2.down, _groundRaycastLength, _groundLayer) || Physics2D.Raycast(transform.position - _groundRaycastOffset, Vector2.down, _groundRaycastLength, _groundLayer); ;
+    //}
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position + _groundRaycastOffset, transform.position + _groundRaycastOffset + Vector3.down * _groundRaycastLength);
-        Gizmos.DrawLine(transform.position - _groundRaycastOffset, transform.position - _groundRaycastOffset + Vector3.down * _groundRaycastLength);
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.green;
+    //    Gizmos.DrawLine(transform.position + _groundRaycastOffset, transform.position + _groundRaycastOffset + Vector3.down * _groundRaycastLength);
+    //    Gizmos.DrawLine(transform.position - _groundRaycastOffset, transform.position - _groundRaycastOffset + Vector3.down * _groundRaycastLength);
+    //}
 }
